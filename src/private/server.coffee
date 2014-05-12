@@ -2,6 +2,6 @@ express = require 'express'
 app = do express
 
 app.get '/', (req, res) ->
-	res.sendfile 'public/index.html'
+	res.sendfile './public/index.html'
 
 app.listen 3050
