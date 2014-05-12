@@ -86,3 +86,10 @@ module.exports = (grunt) ->
 		'stylus:compile',
 		'copy:src', 
 		'concurrent:dev'])
+
+	grunt.registerTask('build', [
+		'coffee:private', 
+		'coffee:public', 
+		'jade:compile', 
+		'stylus:compile',
+		'copy:src'])
