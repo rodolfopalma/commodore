@@ -26,10 +26,17 @@ companias = [
 
 class Commodore
 	constructor: (@companies, @gmaps) ->
+		# Setting up the enviroment
 		do @displayMap
 		do @fillSelectionList
 		do @addSelectionListListeners
 		do @addMapMarkers
+		do @addMapClickListener
+		do @addSimulationButtonListener
+
+		@directionsService = new @gmaps.DirectionsService
+
+		@directions = []
 
 	displayMap: ->
 		mapOptions = 
@@ -40,7 +47,7 @@ class Commodore
 
 	fillSelectionList: ->
 		selectionList = document.getElementById "companias"
-		for value in @companies
+		for value, i in @companies
 			cardinal = [
 				"1ra", 
 				"2da",
@@ -69,10 +76,10 @@ class Commodore
 			input = document.createElement "input"
 			input.setAttribute "type", "checkbox"
 			input.checked = true
-			input.setAttribute "value", _i + 1
+			input.setAttribute "value", i + 1
 			input.setAttribute "name", "companias"
 
-			label.innerText = "#{cardinal[_i]} Compañía"
+			label.innerText = "#{cardinal[i]} Compañía"
 			label.insertBefore input, label.firstChild
 
 			selectionList.appendChild label
@@ -97,17 +104,53 @@ class Commodore
 
 	addMapMarkers: ->
 		@markers = []
-		for companie in @companies
+		for companie, i in @companies
 			position = new @gmaps.LatLng(companie[0], companie[1])
 			marker = new @gmaps.Marker({
 				position: position
 				title: "BOMBEROS"
+				icon: './i/fireman-26.png'
 			})
-			marker.setMap @map
-			@markers.push marker
-		console.log @markers
-	
-				
+			@markers[i] = marker
+
+	addMapClickListener: ->
+		that = @
+		@gmaps.event.addListener @map, 'click', (data) ->
+			that.emergency?.setMap null
+			that.emergency = new that.gmaps.Marker({
+				position: data.latLng
+				title: "EMERGENCIA"
+				icon: './i/fire_element-26.png'
+			})
+			that.emergency.setMap that.map
+
+	addSimulationButtonListener: ->
+		button = document.getElementById("controles_simular").getElementsByTagName("button")[0]
+		that = this
+		button.addEventListener 'click', ->
+			do that.simulate
+
+	simulate: ->
+		for route, i in @directions
+			route.setMap null
+		
+		@directions = []
+
+		for input in @selectionList.getElementsByTagName "input"
+			if input.checked
+				that = this
+
+				request =
+					origin: do @markers[input.value - 1].getPosition
+					destination: do @emergency.getPosition
+					travelMode: @gmaps.TravelMode.DRIVING
+
+				@directionsService.route request, (res, status) ->
+					directionsRenderer = new that.gmaps.DirectionsRenderer
+					directionsRenderer.setMap that.map
+					directionsRenderer.setDirections res
+
+					that.directions.push directionsRenderer
 
 
 
