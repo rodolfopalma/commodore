@@ -37,41 +37,47 @@ class Commodore
 		@directionsService = new @gmaps.DirectionsService
 
 		@directions = []
+		@results = {}
 
 	displayMap: ->
 		mapOptions = 
 		    zoom: 12
 		    center: new @gmaps.LatLng(-33.4406259,-70.638071)
 
+		console.log "LOG: Setting up the map."
 		@map = new @gmaps.Map document.getElementById("mapa"), mapOptions
+
+	getCardinalName: (i) ->
+		cardinal = [
+			"1ra", 
+			"2da",
+			"3ra",
+			"4ta",
+			"5ta",
+			"6ta",
+			"7ma",
+			"8ta",
+			"9na",
+			"10ma",
+			"11ma",
+			"12da",
+			"13ra",
+			"14ta",
+			"15ta",
+			"16ta",
+			"17ma",
+			"18va",
+			"19na",
+			"20ma",
+			"21ra",
+			"22da"
+		]
+
+		return "#{cardinal[i]} Compañía" 
 
 	fillSelectionList: ->
 		selectionList = document.getElementById "companias"
 		for value, i in @companies
-			cardinal = [
-				"1ra", 
-				"2da",
-				"3ra",
-				"4ta",
-				"5ta",
-				"6ta",
-				"7ma",
-				"8ta",
-				"9na",
-				"10ma",
-				"11ma",
-				"12da",
-				"13ra",
-				"14ta",
-				"15ta",
-				"16ta",
-				"17ma",
-				"18va",
-				"19na",
-				"20ma",
-				"21ra",
-				"22da"
-			]
 			label = document.createElement "label"
 			input = document.createElement "input"
 			input.setAttribute "type", "checkbox"
@@ -79,9 +85,10 @@ class Commodore
 			input.setAttribute "value", i + 1
 			input.setAttribute "name", "companias"
 
-			label.innerText = "#{cardinal[i]} Compañía"
+			label.innerText = @getCardinalName i
 			label.insertBefore input, label.firstChild
 
+			console.log "LOG: Creating #{i + 1}th company checkbox."
 			selectionList.appendChild label
 			
 			@selectionList = selectionList
@@ -111,6 +118,8 @@ class Commodore
 				title: "BOMBEROS"
 				icon: './i/fireman-26.png'
 			})
+			console.log "LOG: Creating #{i + 1}th company marker."
+			marker.setMap @map
 			@markers[i] = marker
 
 	addMapClickListener: ->
@@ -122,6 +131,8 @@ class Commodore
 				title: "EMERGENCIA"
 				icon: './i/fire_element-26.png'
 			})
+
+			console.log "LOG: Creating emergency point."
 			that.emergency.setMap that.map
 
 	addSimulationButtonListener: ->
@@ -131,30 +142,86 @@ class Commodore
 			do that.simulate
 
 	simulate: ->
+		# Check if there is actually an emergency point
+		if not @emergency?.getPosition
+			console.log "ERROR: There is no emergency point defined."
+			return
+
+		console.log "LOG: Simulating..."
+
+		# Erase previous routes
 		for route, i in @directions
 			route.setMap null
 		
 		@directions = []
+		@results = []
 
-		for input in @selectionList.getElementsByTagName "input"
+		calculateRoute = (val, i, j) =>
+			request =
+				origin: do @markers[val - 1].getPosition
+				destination: do @emergency.getPosition
+				travelMode: @gmaps.TravelMode.DRIVING
+
+			console.log "LOG: from #{val}th to emergency point."
+
+			that = @
+
+			@directionsService.route request, (res, status) =>
+				console.log status
+				displayRoute res
+				analyzeRoute res, val
+
+				if i == j
+					console.log "LOG: Route simulation has finished."
+					do @sortResults
+
+		displayRoute = (res) =>
+			directionsRenderer = new @gmaps.DirectionsRenderer
+			directionsRenderer.setMap @map
+			directionsRenderer.setDirections res
+
+			@directions.push directionsRenderer
+
+		analyzeRoute = (res, val) =>
+			@results.push 
+				screenName: @getCardinalName(val - 1)
+				duration: res.routes[0].legs[0].duration.value
+
+		j = 0
+		for input in @selectionList.getElementsByTagName "input"			
 			if input.checked
-				that = this
+				j++
+				i = j
+				val = input.value
+				do (val, j) ->
+					setTimeout ->
+						calculateRoute val, i, j
+					, 600 * j
 
-				request =
-					origin: do @markers[input.value - 1].getPosition
-					destination: do @emergency.getPosition
-					travelMode: @gmaps.TravelMode.DRIVING
+	sortResults: ->
+		console.log "LOG: Sorting simulation results."
 
-				@directionsService.route request, (res, status) ->
-					directionsRenderer = new that.gmaps.DirectionsRenderer
-					directionsRenderer.setMap that.map
-					directionsRenderer.setDirections res
+		compare = (a,b) ->
+			if a.duration < b.duration
+				return -1
+			if a.duration > b.duration
+				return 1
+			return 0
 
-					that.directions.push directionsRenderer
+		@results.sort compare
 
+		do @displayResults
 
+	displayResults: ->
+		text = "#####   RESULTADOS SIMULACIÓN   #####\n"
+		tmpTextArray = []
 
+		for result, i in @results
+			tmpTextArray.push "#{i + 1}) #{result.screenName}: #{result.duration}"
+		
+		text += tmpTextArray.join "\n"
 
+		alert text
 
 # Inicializar todo...
 google.maps.event.addDomListener window, 'load', new Commodore(companias, google.maps)
