@@ -225,7 +225,8 @@ class Commodore
 			tmpTextArray.push "#{i + 1}) #{result.screenName}: #{result.duration}"
 		
 		text += tmpTextArray.join "\n"
-
+		
+		console.log text
 		alert text
 
 # Init everything...
