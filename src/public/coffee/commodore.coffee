@@ -1,5 +1,10 @@
-# Companias: posicion geocodificada se almacena en array.
-companias = [
+###
+COMMODORE: commodore.js
+Main javascript file. Source is written in Coffeescript. Totally framework independent class.
+Rodolfo Palma O. rpalmaotero[at]gmail[dot]com
+###
+# Companies: geocoded locations stored in array.
+companies = [
 	[-33.437558, -70.64334],
 	[-33.432616, -70.647864],
 	[-33.4417574,-70.6342405],
@@ -223,5 +228,6 @@ class Commodore
 
 		alert text
 
-# Inicializar todo...
-google.maps.event.addDomListener window, 'load', new Commodore(companias, google.maps)
+# Init everything...
+console.log "LOG: Commodore initialization"
+google.maps.event.addDomListener window, 'load', new Commodore(companies, google.maps)
