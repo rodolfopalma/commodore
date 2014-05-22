@@ -38,6 +38,7 @@ class Commodore
 		do @addMapMarkers
 		do @addMapClickListener
 		do @addSimulationButtonListener
+		do @addRightClickEventListener
 
 		@directionsService = new @gmaps.DirectionsService
 
@@ -100,13 +101,13 @@ class Commodore
 
 	addSelectionListListeners: ->
 		buttons = document.getElementById("seleccion_controles").getElementsByTagName("button")
+		that = @
 
 		for button in buttons
-			that = @
 			button.addEventListener "click", ->
 				dataset = @dataset
-				include = @dataset.selection_include?
-				values = (@dataset.selection_include || @dataset.selection_exclude).split ","
+				include = dataset.selection_include?
+				values = (dataset.selection_include || dataset.selection_exclude).split ","
 
 				for input in that.selectionList.getElementsByTagName("input")
 					if input.value in values
@@ -128,23 +129,21 @@ class Commodore
 			@markers[i] = marker
 
 	addMapClickListener: ->
-		that = @
-		@gmaps.event.addListener @map, 'click', (data) ->
-			that.emergency?.setMap null
-			that.emergency = new that.gmaps.Marker({
+		@gmaps.event.addListener @map, 'click', (data) =>
+			@emergency?.setMap null
+			@emergency = new @gmaps.Marker({
 				position: data.latLng
 				title: "EMERGENCIA"
 				icon: './i/fire_element-26.png'
 			})
 
 			console.log "LOG: Creating emergency point."
-			that.emergency.setMap that.map
+			@emergency.setMap @map
 
 	addSimulationButtonListener: ->
 		button = document.getElementById("controles_simular").getElementsByTagName("button")[0]
-		that = this
-		button.addEventListener 'click', ->
-			do that.simulate
+		button.addEventListener 'click', =>
+			do @simulate
 
 	simulate: ->
 		# Check if there is actually an emergency point
@@ -168,8 +167,6 @@ class Commodore
 				travelMode: @gmaps.TravelMode.DRIVING
 
 			console.log "LOG: from #{val}th to emergency point."
-
-			that = @
 
 			@directionsService.route request, (res, status) =>
 				console.log status
@@ -228,6 +225,14 @@ class Commodore
 		
 		console.log text
 		alert text
+
+	addRightClickEventListener: ->
+		@gmaps.event.addListener @map, 'rightclick', (data) =>
+			console.log "Hey, working on this..."
+
+	testContext: ->
+		alert "context is right"
+
 
 # Init everything...
 console.log "LOG: Commodore initialization"
