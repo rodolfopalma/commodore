@@ -5,32 +5,31 @@ body
 	background #cccccc
 	height 100%
 
-#controles, #mapa
-	float left
+#mapa
+	height 100%
 
-#controles
-	width 30%
-	min-width 180px
-
-#controles_cuarteles
+// #controles -> todo el sidebar
+#controles 
 	h2
-		font-size 16px
-		margin 5px
+		margin 5px 0
+		font-size 18px	
 
-	ul
-		list-style-type none
-		padding 0
-		margin 5px
+// #seleccion_controles -> botones para seleccionar compañias
+#seleccion_controles
+	margin-bottom 10px
 
-		button
-			margin-bottom 2px
-			font-size 14px
+	button
+		float left
 
+// #compañias -> lista de compañias
 #companias
+	clear both
+	margin-bottom 10px
+
 	label
 		display block
+		margin 0
+		font-weight normal
 
-
-#mapa
-	width 70%
-	min-height 100%
+		checkbox
+			margin 0

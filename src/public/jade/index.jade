@@ -6,26 +6,26 @@ html
         title Commodore
         meta(name='description', content='')
         meta(name='viewport', content='width=device-width, initial-scale=1')
-        link(rel='stylesheet', href='./css/normalize.css')
+        link(rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css")
         link(rel='stylesheet', href='./css/styles.css')
 
-    body
-        section#controles
+    body.container-fluid
+        section.col-md-3#controles
             #controles_cuarteles
                 h2 Selecciona cuarteles:
-                ul#seleccion_controles
+                ul.list-unstyled.clearfix#seleccion_controles
                     li 
-                        button(data-selection_exclude="all") Seleccionar todos
+                        button(type="button", class="btn btn-default btn-sm", data-selection_exclude="all") Seleccionar todos
                     li
-                        button(data-selection_include="all") Seleccionar ninguno
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="all") Seleccionar ninguno
                     li
-                        button(data-selection_exclude="6,7,8,12,15") Seleccionar AGUA
+                        button(type="button", class="btn btn-default btn-sm",data-selection_exclude="6,7,8,12,15") Solo AGUA
                     li
-                        button(data-selection_include="6,7,8,12,15") Seleccionar ESCALAS
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,15") Solo ESCALAS
                     li
-                        button(data-selection_include="6,7,8,12,14,15,19") Seleccionar RESCATE
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,14,15,19") Solo RESCATE
                     li
-                        button(data-selection_include="4,17,18") Seleccionar HAZMATS
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="4,17,18") Solo HAZMATS
 
                 fieldset#companias
 
@@ -36,9 +36,9 @@ html
 
             #controles_simular
                 p 
-                    button Simular
+                    button(type="button", class="btn btn-primary btn-block") Simular
 
-        #mapa
+        #mapa.col-md-9
 
         // Javascript
         script(src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC-PBfh43n0WxflO8TSCHPvvA_ZqOMkoQU&sensor=false")
