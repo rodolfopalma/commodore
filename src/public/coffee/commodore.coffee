@@ -50,7 +50,7 @@ class Commodore
 		    zoom: 12
 		    center: new @gmaps.LatLng(-33.4406259,-70.638071)
 
-		console.log "LOG: Setting up the map."
+		console.log "LOG[commodore]: Setting up the map."
 		@map = new @gmaps.Map document.getElementById("mapa"), mapOptions
 
 	getCardinalName: (i) ->
@@ -94,7 +94,7 @@ class Commodore
 			label.innerText = @getCardinalName i
 			label.insertBefore input, label.firstChild
 
-			console.log "LOG: Creating #{i + 1}th company checkbox."
+			console.log "LOG[commodore]: Creating #{i + 1}th company checkbox."
 			selectionList.appendChild label
 			
 			@selectionList = selectionList
@@ -124,7 +124,7 @@ class Commodore
 				title: "BOMBEROS"
 				icon: './i/fireman-26.png'
 			})
-			console.log "LOG: Creating #{i + 1}th company marker."
+			console.log "LOG[commodore]: Creating #{i + 1}th company marker."
 			marker.setMap @map
 			@markers[i] = marker
 
@@ -137,7 +137,7 @@ class Commodore
 				icon: './i/fire_element-26.png'
 			})
 
-			console.log "LOG: Creating emergency point."
+			console.log "LOG[commodore]: Creating emergency point."
 			@emergency.setMap @map
 
 	addSimulationButtonListener: ->
@@ -151,7 +151,7 @@ class Commodore
 			console.log "ERROR: There is no emergency point defined."
 			return
 
-		console.log "LOG: Simulating..."
+		console.log "LOG[commodore]: Simulating..."
 
 		# Erase previous routes
 		for route, i in @directions
@@ -166,7 +166,7 @@ class Commodore
 				destination: do @emergency.getPosition
 				travelMode: @gmaps.TravelMode.DRIVING
 
-			console.log "LOG: from #{val}th to emergency point."
+			console.log "LOG[commodore]: from #{val}th to emergency point."
 
 			@directionsService.route request, (res, status) =>
 				console.log status
@@ -174,7 +174,7 @@ class Commodore
 				analyzeRoute res, val
 
 				if i == j
-					console.log "LOG: Route simulation has finished."
+					console.log "LOG[commodore]: Route simulation has finished."
 					do @sortResults
 
 		displayRoute = (res) =>
@@ -201,7 +201,7 @@ class Commodore
 					, 600 * j
 
 	sortResults: ->
-		console.log "LOG: Sorting simulation results."
+		console.log "LOG[commodore]: Sorting simulation results."
 
 		compare = (a,b) ->
 			if a.duration < b.duration
@@ -219,7 +219,7 @@ class Commodore
 		tmpTextArray = []
 
 		for result, i in @results
-			tmpTextArray.push "#{i + 1}) #{result.screenName}: #{result.duration}"
+			tmpTextArray.push "#{i + 1}) #{result.screenName}: #{result.duration} segs"
 		
 		text += tmpTextArray.join "\n"
 		
@@ -228,12 +228,17 @@ class Commodore
 
 	addRightClickEventListener: ->
 		@gmaps.event.addListener @map, 'rightclick', (data) =>
-			console.log "Hey, working on this..."
+			new Lightbox 
+				url: "./apparatus_prompt.html"
+				form: true
+				callback: @handleNewAparatus
+
+	handleNewAparatus: (data) =>
+		# data[0].value
 
 	testContext: ->
-		alert "context is right"
-
+		console.log "context is right"
 
 # Init everything...
-console.log "LOG: Commodore initialization"
+console.log "LOG[commodore]: Commodore initialization"
 google.maps.event.addDomListener window, 'load', new Commodore(companies, google.maps)

@@ -7,7 +7,7 @@ html
         meta(name='description', content='')
         meta(name='viewport', content='width=device-width, initial-scale=1')
         link(rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css")
-        link(rel='stylesheet', href='./css/styles.css')
+        link(rel='stylesheet', href='./css/commodore.css')
 
     body.container-fluid
         section.col-md-3#controles
@@ -19,13 +19,13 @@ html
                     li
                         button(type="button", class="btn btn-default btn-sm",data-selection_include="all") Seleccionar ninguno
                     li
-                        button(type="button", class="btn btn-default btn-sm",data-selection_exclude="6,7,8,12,15") Solo AGUA
+                        button(type="button", class="btn btn-default btn-sm",data-selection_exclude="6,7,8,12,15") AGUA
                     li
-                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,15") Solo ESCALAS
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,15") ESCALAS
                     li
-                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,14,15,19") Solo RESCATE
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="6,7,8,12,14,15,19") RESCATE
                     li
-                        button(type="button", class="btn btn-default btn-sm",data-selection_include="4,17,18") Solo HAZMATS
+                        button(type="button", class="btn btn-default btn-sm",data-selection_include="4,17,18") HAZMATS
 
                 fieldset#companias
 
@@ -50,4 +50,3 @@ html
         script(src="//code.jquery.com/jquery-1.11.0.min.js")
         script(src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC-PBfh43n0WxflO8TSCHPvvA_ZqOMkoQU&sensor=false")
         script(src="./js/commodore.js")
-        script(src="./js/fancy.js")

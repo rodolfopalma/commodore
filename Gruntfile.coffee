@@ -39,11 +39,10 @@ module.exports = (grunt) ->
 
 		coffee:
 			public:
-				expand: true
-				flatten: true
-				src: '<%= watch.coffeePublic.files %>'
-				dest: 'public/js'
-				ext: '.js'					
+				files:
+					"public/js/commodore.js": '<%= watch.coffeePublic.files %>'
+				options:
+					join: true			
 			private:
 				expand: true
 				flatten: true
@@ -61,11 +60,10 @@ module.exports = (grunt) ->
 
 		stylus:
 			compile:
-				expand: true
-				flatten: true
-				src: '<%= watch.stylus.files %>'
-				dest: 'public/css'
-				ext: '.css'
+				files:
+					"public/css/commodore.css": '<%= watch.stylus.files %>'
+				join:
+					true
 
 		nodemon:
 			dev:
