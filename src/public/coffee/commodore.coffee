@@ -32,18 +32,22 @@ companies = [
 class Commodore
 	constructor: (@companies, @gmaps) ->
 		# Setting up the enviroment
-		do @displayMap
-		do @fillSelectionList
-		do @addSelectionListListeners
-		do @addMapMarkers
-		do @addMapClickListener
-		do @addSimulationButtonListener
-		do @addRightClickEventListener
+		@directions = []
+		@results = {}
+		@markers = {}
 
 		@directionsService = new @gmaps.DirectionsService
 
-		@directions = []
-		@results = {}
+		@selectionList = document.getElementById "companias"
+		@apparatusList = document.getElementById "material_agregado"
+
+		do @displayMap
+		do @fillSelectionList
+		do @addSelectionListListeners
+		do @addCompaniesMarker
+		do @addMapClickListener
+		do @addSimulationButtonListener
+		do @addRightClickEventListener
 
 	displayMap: ->
 		mapOptions = 
@@ -82,22 +86,10 @@ class Commodore
 		return "#{cardinal[i]} Compañía" 
 
 	fillSelectionList: ->
-		selectionList = document.getElementById "companias"
 		for value, i in @companies
-			label = document.createElement "label"
-			input = document.createElement "input"
-			input.setAttribute "type", "checkbox"
-			input.checked = true
-			input.setAttribute "value", i + 1
-			input.setAttribute "name", "companias"
-
-			label.innerText = @getCardinalName i
-			label.insertBefore input, label.firstChild
-
 			console.log "LOG[commodore]: Creating #{i + 1}th company checkbox."
-			selectionList.appendChild label
-			
-			@selectionList = selectionList
+
+			@selectionList.appendChild(@createListItem i, "companias")
 
 	addSelectionListListeners: ->
 		buttons = document.getElementById("seleccion_controles").getElementsByTagName("button")
@@ -115,18 +107,30 @@ class Commodore
 					else  
 						input.checked = !include
 
-	addMapMarkers: ->
-		@markers = []
-		for companie, i in @companies
-			position = new @gmaps.LatLng(companie[0], companie[1])
-			marker = new @gmaps.Marker({
-				position: position
-				title: "BOMBEROS"
-				icon: './i/fireman-26.png'
-			})
+	addCompaniesMarker: ->
+		for company, i in @companies			
 			console.log "LOG[commodore]: Creating #{i + 1}th company marker."
+
+			marker = @addMapMarker [company[0], company[1]], @getCardinalName(i), "./i/fireman-26.png"
+
+			@markers[i + 1] = marker
+
+	addMapMarker: (latlng, title, icon, visible = true) ->
+		if latlng.length == 2
+			position = new @gmaps.LatLng(latlng[0], latlng[1])
+		else
+			position = latlng
+
+		marker = new @gmaps.Marker({
+			position: position
+			title: title
+			icon: icon
+		})
+
+		if visible
 			marker.setMap @map
-			@markers[i] = marker
+
+		return marker
 
 	addMapClickListener: ->
 		@gmaps.event.addListener @map, 'click', (data) =>
@@ -160,9 +164,12 @@ class Commodore
 		@directions = []
 		@results = []
 
+		console.log @markers
+
 		calculateRoute = (val, i, j) =>
+			console.log val
 			request =
-				origin: do @markers[val - 1].getPosition
+				origin: do @markers[val].getPosition
 				destination: do @emergency.getPosition
 				travelMode: @gmaps.TravelMode.DRIVING
 
@@ -186,11 +193,12 @@ class Commodore
 
 		analyzeRoute = (res, val) =>
 			@results.push 
-				screenName: @getCardinalName(val - 1)
+				screenName: if isNaN val then val else @getCardinalName(val - 1) 
 				duration: res.routes[0].legs[0].duration.value
 
+		dataSet = [].slice.call(@selectionList.getElementsByTagName("input")).concat([].slice.call(@apparatusList.getElementsByTagName("input")));
 		j = 0
-		for input in @selectionList.getElementsByTagName "input"			
+		for input in dataSet	
 			if input.checked
 				j++
 				i = j
@@ -232,12 +240,34 @@ class Commodore
 				url: "./apparatus_prompt.html"
 				form: true
 				callback: @handleNewAparatus
+				extraData: data.latLng
 
-	handleNewAparatus: (data) =>
-		# data[0].value
+	handleNewAparatus: (data, latlng) =>
+		name = data[0].value
 
-	testContext: ->
-		console.log "context is right"
+		console.log "LOG[commodore]: Creating #{name} checkbox.", latlng.length
+
+		@apparatusList.appendChild(@createListItem(name, "apparatus"))
+
+		marker = @addMapMarker latlng, name, "./i/truck-26.png"
+
+		marker.setMap @map
+
+		@markers[name] = marker
+
+
+	createListItem: (val, name) ->
+		label = document.createElement "label"
+		input = document.createElement "input"
+		input.setAttribute "type", "checkbox"
+		input.checked = true
+		input.setAttribute "value", if isNaN(val) then val else val + 1
+		input.setAttribute "name", name
+
+		label.innerText = if isNaN(val) then val else @getCardinalName val
+		label.insertBefore input, label.firstChild
+
+		return label
 
 # Init everything...
 console.log "LOG[commodore]: Commodore initialization"

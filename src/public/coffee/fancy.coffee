@@ -9,13 +9,18 @@ class Lightbox
 		console.log "LOG[lightbox]: Creating lightbox."
 		
 		@lightboxWrapper = $("<div></div>").addClass("lightbox_wrapper").hide().appendTo("body");
+		@extraData = if @options.extraData? then @options.extraData else {}
 
 		do @fillTemplateContent
 		do @fillUserContent
+		do @addEscapeKeyListener
 
 	show: ->
 		console.log "LOG[lightbox]: Showing lightbox."
-		@lightboxWrapper.show 100
+		that = @
+		@lightboxWrapper.show 100, ->
+			if that.options.form?
+				do $(@).find("input[type='text']").focus
 
 	hide: ->
 		console.log "LOG[lightbox]: Hiding lightbox."
@@ -50,10 +55,15 @@ class Lightbox
 
 		@lightboxUserContent.find("form").submit (e) ->
 			console.log "LOG[lightbox]: User's form submitted, handling it."
-			that.options.callback do $(@).serializeArray 
+			that.options.callback(do $(@).serializeArray, that.extraData) 
 
-			do e.preventDefault
 			do that.hide
+			return false
+
+	addEscapeKeyListener: ->
+		$(document).keyup (e) =>
+			if e.keyCode == 27
+				do @hide
 
 ###
 The so loved and hated jQuery
