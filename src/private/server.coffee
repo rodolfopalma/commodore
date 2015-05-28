@@ -7,3 +7,4 @@ app.get '/', (req, res) ->
 app.use(express.static 'public' )
 
 app.listen 3050
+console.log "Listening on http://localhost:" + 3050
